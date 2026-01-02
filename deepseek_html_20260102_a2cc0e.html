@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meowlik World - Гриферский сервер Minecraft</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Minecraftia&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Сброс стилей и базовые настройки */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* Улучшенная адаптивность для всех устройств */
+        :root {
+            --primary-green: #55FF55;
+            --dark-green: #005500;
+            --telegram-blue: rgb(89, 183, 255);
+            --buy-yellow: rgb(239, 255, 94);
+            --complaint-red: rgb(255, 56, 56);
+            --container-width: min(95%, 1200px);
+        }
+        
+        body {
+            font-family: 'Minecraftia', monospace, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(40, 80, 40, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(30, 60, 30, 0.15) 0%, transparent 50%);
+            position: relative;
+        }
+        
+        /* Фоновые блоки Minecraft - адаптивные */
+        .minecraft-block {
+            position: fixed;
+            background-size: cover;
+            z-index: -1;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        /* Адаптивные размеры блоков */
+        @media (max-width: 768px) {
+            .minecraft-block {
+                display: none; /* На мобильных скрываем для производительности */
+            }
+        }
+        
+        .block-1 {
+            top: 10%;
+            left: 5%;
+            width: 60px;
+            height: 60px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><rect width="60" height="60" fill="%2355aa55"/><rect x="0" y="0" width="60" height="12" fill="%233a7a3a"/><rect x="0" y="48" width="60" height="12" fill="%233a7a3a"/><rect x="0" y="0" width="12" height="60" fill="%233a7a3a"/><rect x="48" y="0" width="12" height="60" fill="%233a7a3a"/></svg>');
+        }
+        
+        .block-2 {
+            top: 20%;
+            right: 8%;
+            width: 80px;
+            height: 80px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="%238B6B4B"/><rect x="0" y="0" width="80" height="16" fill="%236B4B2B"/><rect x="0" y="64" width="80" height="16" fill="%236B4B2B"/><rect x="0" y="0" width="16" height="80" fill="%236B4B2B"/><rect x="64" y="0" width="16" height="80" fill="%236B4B2B"/></svg>');
+        }
+        
+        .block-3 {
+            bottom: 15%;
+            left: 10%;
+            width: 70px;
+            height: 70px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="70" height="70" viewBox="0 0 70 70"><rect width="70" height="70" fill="%23777777"/><rect x="0" y="0" width="70" height="14" fill="%23555555"/><rect x="0" y="56" width="70" height="14" fill="%23555555"/><rect x="0" y="0" width="14" height="70" fill="%23555555"/><rect x="56" y="0" width="14" height="70" fill="%23555555"/></svg>');
+        }
+        
+        /* Основной контейнер - адаптивный */
+        .container {
+            width: var(--container-width);
+            text-align: center;
+            padding: 30px 20px;
+            background-color: rgba(20, 20, 20, 0.92);
+            border: 8px solid #5a5a5a;
+            border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='75' height='75' viewBox='0 0 75 75'%3E%3Cpath d='M0 0h75v75H0z' fill='%235a5a5a'/%3E%3Cpath d='M0 0h75v10H0zM0 65h75v10H0zM0 20h75v5H0zM0 50h75v5H0zM65 0h10v75H65zM0 0h10v75H0zM20 0h5v75h-5zM50 0h5v75h-5z' fill='%23333'/%3E%3C/svg%3E") 16 stretch;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
+            position: relative;
+            margin: 20px auto 40px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #5a5a5a, #333, #5a5a5a);
+        }
+        
+        /* Адаптивный заголовок */
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            margin-bottom: clamp(30px, 5vw, 60px);
+            color: var(--primary-green);
+            text-shadow: 3px 3px 0 var(--dark-green), 5px 5px 0 rgba(0, 0, 0, 0.5);
+            letter-spacing: 1px;
+            line-height: 1.3;
+            padding: clamp(15px, 3vw, 25px);
+            background-color: rgba(0, 30, 0, 0.5);
+            border: 4px solid #3a7a3a;
+            border-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'%3E%3Cpath d='M0 0h50v50H0z' fill='%233a7a3a'/%3E%3Cpath d='M0 0h50v8H0zM0 42h50v8H0zM0 15h50v5H0zM0 30h50v5H0zM42 0h8v50h-8zM0 0h8v50H0zM15 0h5v50h-5zM30 0h5v50h-5z' fill='%232a5a2a'/%3E%3C/svg%3E") 10 stretch;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Информация о сервере - адаптивная */
+        .server-info {
+            max-width: 800px;
+            margin: 0 auto clamp(30px, 5vw, 50px);
+            padding: clamp(15px, 3vw, 25px);
+            background-color: rgba(40, 40, 40, 0.7);
+            border: 4px solid #5a5a5a;
+            text-align: left;
+        }
+        
+        .server-info h2 {
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            font-size: clamp(1.3rem, 3vw, 1.8rem);
+            text-shadow: 2px 2px 0 var(--dark-green);
+        }
+        
+        .server-info p {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 1.6;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        /* Статистика сервера - адаптивная */
+        .server-stats {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: clamp(30px, 5vw, 50px) 0;
+            gap: clamp(15px, 3vw, 30px);
+        }
+        
+        .stat-item {
+            background-color: rgba(40, 40, 40, 0.8);
+            padding: clamp(15px, 3vw, 20px);
+            border: 3px solid #5a5a5a;
+            min-width: min(200px, 90%);
+            flex: 1;
+            max-width: 300px;
+        }
+        
+        .stat-value {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: var(--primary-green);
+            font-weight: bold;
+            text-shadow: 2px 2px 0 var(--dark-green);
+        }
+        
+        .stat-label {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            margin-top: 10px;
+            color: #ccc;
+        }
+        
+        /* Контейнер кнопок - адаптивный */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(20px, 4vw, 35px);
+            margin-top: 40px;
+        }
+        
+        /* Кнопки - полностью адаптивные */
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: min(600px, 95vw);
+            padding: clamp(15px, 4vw, 25px) clamp(20px, 5vw, 35px);
+            text-decoration: none;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            text-align: center;
+            border: 6px solid;
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+            transform: translateY(0);
+            touch-action: manipulation; /* Улучшение для сенсорных экранов */
+        }
+        
+        .button:hover, .button:focus {
+            transform: translateY(-5px);
+            box-shadow: 0 11px 0 rgba(0, 0, 0, 0.3);
+            outline: none;
+        }
+        
+        .button:active {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Для мобильных - более крупные области нажатия */
+        @media (max-width: 768px) {
+            .button {
+                min-height: 70px;
+            }
+        }
+        
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(10px, 3vw, 20px);
+            width: 100%;
+            flex-wrap: wrap;
+        }
+        
+        /* Цвета кнопок */
+        .telegram-btn {
+            background-color: var(--telegram-blue);
+            border-color: rgb(60, 150, 220);
+            color: white;
+        }
+        
+        .buy-btn {
+            background-color: var(--buy-yellow);
+            border-color: rgb(210, 225, 70);
+            color: #333;
+        }
+        
+        .complaint-btn {
+            background-color: var(--complaint-red);
+            border-color: rgb(220, 40, 40);
+            color: white;
+        }
+        
+        /* Текст "скоро будет" */
+        .soon {
+            font-size: clamp(0.9rem, 2vw, 1.3rem);
+            margin-top: clamp(5px, 1vw, 10px);
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        .complaint-soon {
+            font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+            margin-top: clamp(3px, 0.8vw, 8px);
+            opacity: 0.9;
+            font-style: italic;
+        }
+        
+        /* Иконки - адаптивные */
+        .icon {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            display: flex;
+            align-items: center;
+            min-width: clamp(30px, 8vw, 50px);
+        }
+        
+        .telegram-icon {
+            color: white;
+        }
+        
+        .crown-icon {
+            color: #FFD700;
+            filter: drop-shadow(0px 2px 1px rgba(0, 0, 0, 0.5));
+        }
+        
+        .siren-icon {
+            color: white;
+            filter: drop-shadow(0px 0px 3px rgba(255, 255, 255, 0.7));
+        }
+        
+        /* Футер - адаптивный */
+        .footer {
+            margin-top: clamp(30px, 5vw, 60px);
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #aaa;
+            text-align: center;
+            padding: clamp(10px, 3vw, 20px);
+            border-top: 2px solid #5a5a5a;
+            width: var(--container-width);
+            word-wrap: break-word;
+        }
+        
+        /* Улучшенные медиа-запросы для разных устройств */
+        
+        /* Планшеты и небольшие ноутбуки */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .container {
+                padding: 40px 30px;
+            }
+            
+            h1 {
+                font-size: 2.8rem;
+            }
+        }
+        
+        /* Большие смартфоны и маленькие планшеты */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 8px;
+            }
+            
+            .container {
+                padding: 25px 15px;
+                border-width: 6px;
+            }
+            
+            h1 {
+                padding: 15px;
+                border-width: 4px;
+            }
+            
+            .button-content {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .server-info {
+                padding: 15px;
+            }
+        }
+        
+        /* Маленькие смартфоны */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px 5px;
+            }
+            
+            .container {
+                padding: 20px 10px;
+                border-width: 5px;
+            }
+            
+            h1 {
+                font-size: 1.6rem;
+                padding: 12px;
+                margin-bottom: 25px;
+            }
+            
+            .button {
+                padding: 15px 10px;
+                font-size: 1.1rem;
+            }
+            
+            .soon, .complaint-soon {
+                font-size: 0.9rem;
+            }
+            
+            .server-info h2 {
+                font-size: 1.2rem;
+            }
+            
+            .server-info p {
+                font-size: 0.95rem;
+            }
+            
+            .stat-item {
+                min-width: 90%;
+            }
+            
+            .footer {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+        }
+        
+        /* Очень маленькие смартфоны (например, iPhone SE) */
+        @media (max-width: 375px) {
+            h1 {
+                font-size: 1.4rem;
+            }
+            
+            .button {
+                font-size: 1rem;
+                padding: 12px 8px;
+            }
+            
+            .icon {
+                min-width: 25px;
+            }
+        }
+        
+        /* Ландшафтная ориентация на мобильных */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .container {
+                margin: 10px auto;
+                padding: 15px;
+            }
+            
+            h1 {
+                margin-bottom: 20px;
+                padding: 10px;
+                font-size: 1.5rem;
+            }
+            
+            .button-container {
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .button {
+                padding: 10px 15px;
+                min-height: 50px;
+            }
+        }
+        
+        /* Очень большие экраны (4K и больше) */
+        @media (min-width: 2000px) {
+            :root {
+                --container-width: min(80%, 1600px);
+            }
+            
+            h1 {
+                font-size: 4rem;
+            }
+            
+            .button {
+                font-size: 2.2rem;
+                max-width: 800px;
+            }
+            
+            .server-info p {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* Анимации для улучшения UX */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Индикатор загрузки для будущих функций */
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+        
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+        
+        /* Специальные стили для touch-устройств */
+        @media (hover: none) and (pointer: coarse) {
+            .button:hover {
+                transform: translateY(0);
+                box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+            }
+            
+            .button:active {
+                transform: translateY(2px);
+                box-shadow: 0 4px 0 rgba(0, 0, 0, 0.3);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="minecraft-block block-1"></div>
+    <div class="minecraft-block block-2"></div>
+    <div class="minecraft-block block-3"></div>
+    
+    <div class="container">
+        <h1>Добро пожаловать на гриферский сервер meowlik world</h1>
+        
+        <div class="server-info">
+            <h2>О нашем сервере</h2>
+            <p>Meowlik World - это уникальный гриферский сервер Minecraft, где вы можете строить, разрушать и взаимодействовать с другими игроками без ограничений. Наш сервер предлагает стабильную работу, защиту от лагов и регулярные обновления.</p>
+            <p>Присоединяйтесь к нашему сообществу, участвуйте в событиях и станьте легендой нашего сервера!</p>
+        </div>
+        
+        <div class="server-stats">
+            <div class="stat-item">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Работа сервера</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value pulse">v1.20.4</div>
+                <div class="stat-label">Версия Java</div>
+            </div>
+        </div>
+        
+        <div class="button-container">
+            <!-- Кнопка телеграм канала -->
+            <a href="#" class="button telegram-btn" id="telegramBtn">
+                <div class="button-content">
+                    <div class="icon telegram-icon">
+                        <!-- Иконка телеграмма -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0-.204 0-.41-.094-.536-.278l-2.536-3.497-5.185-1.355c-.658-.183-.658-.635.136-.953l19.246-7.362c.538-.196 1.006.128.832.941l-2.822 13.3c-.111.524-.445.643-.762.531l-4.872-2.311-2.393 2.311c-.261.261-.479.239-.479-.089v-5.053l9.186-8.306c.391-.353-.085-.548-.607-.198z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div>Наш телеграм канал</div>
+                        <div class="soon loading-dots">(скоро будет)</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Кнопка купить привилегию -->
+            <a href="#" class="button buy-btn" id="buyBtn">
+                <div class="button-content">
+                    <div class="icon crown-icon">
+                        <!-- Иконка короны -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="#FFD700">
+                            <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div>Купить привилегию</div>
+                        <div class="soon loading-dots">(скоро будет)</div>
+                    </div>
+                </div>
+            </a>
+            
+            <!-- Кнопка подать жалобу -->
+            <a href="#" class="button complaint-btn" id="complaintBtn">
+                <div class="button-content">
+                    <div class="icon siren-icon">
+                        <!-- Иконка сирены -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.11v.9c0 1.6-.5 3.2-1.4 4.5L12 8.5l-5.6 7.2c-.9-1.3-1.4-2.9-1.4-4.5v-.9l7-3.11zM12 6c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1s1-.45 1-1V7c0-.55-.45-1-1-1zm0 10c-1.66 0-3-1.34-3-3h2c0 .55.45 1 1 1s1-.45 1-1h2c0 1.66-1.34 3-3 3z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div>Подать жалобу</div>
+                        <div class="complaint-soon loading-dots">(не поверишь но тоже скоро будет :))</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Meowlik World &copy; 2026 | Гриферский сервер Minecraft | IP: play.meowlikworld.net
+    </div>
+
+    <script>
+        // Определяем тип устройства
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Устанавливаем класс для body в зависимости от типа устройства
+        if (isMobile || isTouchDevice) {
+            document.body.classList.add('touch-device');
+        } else {
+            document.body.classList.add('desktop-device');
+        }
+        
+        // Обработчики для кнопок
+        document.getElementById('telegramBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Ссылка на Telegram канал появится скоро! Оставайтесь на связи!');
+        });
+        
+        document.getElementById('buyBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Магазин привилегий откроется в ближайшее время! Вы сможете выбрать короны разных уровней!');
+        });
+        
+        document.getElementById('complaintBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Система подачи жалоб скоро будет доступна! Мы заботимся о честной игре!');
+        });
+        
+        // Создаем дополнительные блоки Minecraft для фона (только на десктопах)
+        function createMinecraftBlocks() {
+            // На мобильных устройствах не создаем много блоков для производительности
+            if (isMobile) return;
+            
+            const blockTypes = [
+                {color: '#55aa55', darkColor: '#3a7a3a'},
+                {color: '#8B6B4B', darkColor: '#6B4B2B'},
+                {color: '#777777', darkColor: '#555555'},
+                {color: '#4477AA', darkColor: '#335588'},
+                {color: '#FFAA00', darkColor: '#CC8800'},
+                {color: '#FF55FF', darkColor: '#CC44CC'}
+            ];
+            
+            const body = document.body;
+            const blockCount = window.innerWidth > 768 ? 10 : 5; // Меньше блоков на мобильных
+            
+            for (let i = 0; i < blockCount; i++) {
+                const block = document.createElement('div');
+                block.className = 'minecraft-block';
+                
+                const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
+                const size = 30 + Math.random() * 70;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                
+                block.style.width = `${size}px`;
+                block.style.height = `${size}px`;
+                block.style.left = `${x}%`;
+                block.style.top = `${y}%`;
+                block.style.opacity = `${0.1 + Math.random() * 0.3}`;
+                block.style.zIndex = '-1';
+                
+                // Создаем SVG блок Minecraft
+                const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                    <rect width="${size}" height="${size}" fill="${blockType.color}"/>
+                    <rect x="0" y="0" width="${size}" height="${size/5}" fill="${blockType.darkColor}"/>
+                    <rect x="0" y="${size - size/5}" width="${size}" height="${size/5}" fill="${blockType.darkColor}"/>
+                    <rect x="0" y="0" width="${size/5}" height="${size}" fill="${blockType.darkColor}"/>
+                    <rect x="${size - size/5}" y="0" width="${size/5}" height="${size}" fill="${blockType.darkColor}"/>
+                </svg>`;
+                
+                block.style.backgroundImage = `url('data:image/svg+xml;utf8,${encodeURIComponent(svg)}')`;
+                
+                body.appendChild(block);
+            }
+        }
+        
+        // Запускаем создание блоков после загрузки страницы
+        window.addEventListener('load', createMinecraftBlocks);
+        
+        // Анимация мигания для иконки сирены
+        const sirenIcon = document.querySelector('.siren-icon svg');
+        let sirenBrightness = 1;
+        let sirenDirection = -0.05;
+        
+        function animateSiren() {
+            sirenBrightness += sirenDirection;
+            
+            if (sirenBrightness <= 0.7) {
+                sirenDirection = 0.05;
+            } else if (sirenBrightness >= 1.3) {
+                sirenDirection = -0.05;
+            }
+            
+            if (sirenIcon) {
+                sirenIcon.style.filter = `drop-shadow(0px 0px 5px rgba(255, 255, 255, ${sirenBrightness}))`;
+            }
+            requestAnimationFrame(animateSiren);
+        }
+        
+        // Анимация для короны
+        const crownIcon = document.querySelector('.crown-icon svg');
+        
+        function animateCrown() {
+            const time = Date.now() / 1000;
+            const rotation = Math.sin(time) * 3; // Более плавное вращение
+            if (crownIcon) {
+                crownIcon.style.transform = `rotate(${rotation}deg)`;
+            }
+            requestAnimationFrame(animateCrown);
+        }
+        
+        // Запускаем анимации
+        if (sirenIcon) animateSiren();
+        if (crownIcon) animateCrown();
+        
+        // Обнаружение ориентации устройства
+        function handleOrientation() {
+            if (window.innerHeight > window.innerWidth) {
+                document.body.classList.add('portrait');
+                document.body.classList.remove('landscape');
+            } else {
+                document.body.classList.add('landscape');
+                document.body.classList.remove('portrait');
+            }
+        }
+        
+        window.addEventListener('resize', handleOrientation);
+        window.addEventListener('orientationchange', handleOrientation);
+        handleOrientation(); // Вызываем сразу
+        
+        // Улучшение для сенсорных устройств: вибрация при нажатии
+        if (isTouchDevice && navigator.vibrate) {
+            const buttons = document.querySelectorAll('.button');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function() {
+                    navigator.vibrate(10); // Короткая вибрация
+                });
+            });
+        }
+        
+        // Динамическое изменение размера текста при изменении окна
+        function adjustTextSize() {
+            const container = document.querySelector('.container');
+            if (container) {
+                const width = container.clientWidth;
+                if (width < 400) {
+                    document.body.style.fontSize = '14px';
+                } else if (width < 600) {
+                    document.body.style.fontSize = '16px';
+                } else {
+                    document.body.style.fontSize = '';
+                }
+            }
+        }
+        
+        window.addEventListener('resize', adjustTextSize);
+        adjustTextSize();
+    </script>
+</body>
+</html>
